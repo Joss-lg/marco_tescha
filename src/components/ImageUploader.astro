@@ -1,0 +1,123 @@
+<div class="rounded-xl border border-slate-200 p-5">
+	<h2 class="text-xl font-semibold text-tescha-blue">
+		Cargar fotografía
+	</h2>
+
+	<p class="mt-1 text-sm text-slate-500">
+		Selecciona una imagen JPG, PNG o WebP.
+	</p>
+
+	<label
+		id="upload-zone"
+		for="photo-input"
+		class="mt-5 flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition-colors hover:border-tescha-green hover:bg-green-50"
+	>
+		<svg
+			class="size-10 text-tescha-green"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="1.8"
+			aria-hidden="true"
+		>
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M12 16V4m0 0-4 4m4-4 4 4M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"
+			/>
+		</svg>
+
+		<span
+			id="upload-title"
+			class="mt-3 font-semibold text-tescha-blue"
+		>
+			Haz clic para seleccionar una imagen
+		</span>
+
+		<span
+			id="upload-description"
+			class="mt-1 text-sm text-slate-500"
+		>
+			Tamaño máximo: 10 MB
+		</span>
+	</label>
+
+	<input
+		id="photo-input"
+		type="file"
+		accept="image/jpeg,image/png,image/webp"
+		class="sr-only"
+	/>
+
+	<p
+		id="upload-error"
+		class="mt-3 hidden text-sm font-medium text-red-600"
+		role="alert"
+	></p>
+</div>
+
+<script>
+	const input = document.querySelector<HTMLInputElement>("#photo-input");
+	const title = document.querySelector<HTMLElement>("#upload-title");
+	const description =
+		document.querySelector<HTMLElement>("#upload-description");
+	const error = document.querySelector<HTMLElement>("#upload-error");
+
+	const maximumFileSize = 10 * 1024 * 1024;
+
+	const allowedFileTypes = [
+		"image/jpeg",
+		"image/png",
+		"image/webp",
+	];
+
+	function showError(message: string) {
+		if (!error) return;
+
+		error.textContent = message;
+		error.classList.remove("hidden");
+	}
+
+	function clearError() {
+		if (!error) return;
+
+		error.textContent = "";
+		error.classList.add("hidden");
+	}
+
+	function handleFile(file: File) {
+		clearError();
+
+		if (!allowedFileTypes.includes(file.type)) {
+			showError("Selecciona una imagen JPG, PNG o WebP.");
+			return;
+		}
+
+		if (file.size > maximumFileSize) {
+			showError("La imagen no debe superar los 10 MB.");
+			return;
+		}
+
+		if (title) {
+			title.textContent = "Imagen seleccionada";
+		}
+
+		if (description) {
+			description.textContent = file.name;
+		}
+
+		document.dispatchEvent(
+			new CustomEvent<File>("photo:selected", {
+				detail: file,
+			}),
+		);
+	}
+
+	input?.addEventListener("change", () => {
+		const file = input.files?.[0];
+
+		if (file) {
+			handleFile(file);
+		}
+	});
+</script>

@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+	--color-tescha-blue: #1e3a5f;
+	--color-tescha-green: #00843d;
+	--color-tescha-lime: #86bc25;
+	--color-tescha-wine: #a50046;
+}
+
+html {
+	min-width: 320px;
+	background-color: var(--color-slate-100);
+}
+
+body {
+	margin: 0;
+}

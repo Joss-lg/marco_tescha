@@ -1,0 +1,160 @@
+<section
+	id="canvas-editor"
+	aria-labelledby="preview-title"
+	class="rounded-xl border border-slate-200 bg-slate-50 p-5"
+>
+	<h2
+		id="preview-title"
+		class="text-center text-xl font-semibold text-tescha-blue"
+	>
+		Vista previa
+	</h2>
+
+	<p class="mt-1 text-center text-sm text-slate-500">
+		La fotografía se ajustará automáticamente al lienzo.
+	</p>
+
+	<div
+		class="mt-5 aspect-square overflow-hidden rounded-lg bg-slate-200 shadow-inner"
+	>
+		<canvas
+			id="photo-canvas"
+			width="1080"
+			height="1080"
+			class="block size-full"
+			aria-label="Vista previa de la fotografía"
+		></canvas>
+	</div>
+
+	<p
+		id="canvas-placeholder"
+		class="mt-4 text-center text-sm text-slate-500"
+	>
+		Selecciona una fotografía para comenzar.
+	</p>
+</section>
+
+<script>
+	const canvas = document.querySelector<HTMLCanvasElement>("#photo-canvas");
+	const placeholder =
+		document.querySelector<HTMLElement>("#canvas-placeholder");
+	const context = canvas?.getContext("2d");
+
+	let photo: HTMLImageElement | null = null;
+	let photoUrl: string | null = null;
+	let photoScale = 1;
+	let photoX = 0;
+	let photoY = 0;
+	const frame = new Image();
+	let frameLoaded = false;
+
+	function paintEmptyCanvas() {
+		if (!canvas || !context) return;
+
+		context.fillStyle = "#e2e8f0";
+		context.fillRect(0, 0, canvas.width, canvas.height);
+	}
+
+	function renderPhoto() {
+		if (!canvas || !context || !photo) return;
+
+		context.clearRect(0, 0, canvas.width, canvas.height);
+
+		// Equivale a object-fit: cover, sin deformar la fotografía.
+		const scale = Math.max(
+			canvas.width / photo.naturalWidth,
+			canvas.height / photo.naturalHeight,
+		);
+		const width = photo.naturalWidth * scale * photoScale;
+		const height = photo.naturalHeight * scale * photoScale;
+		const x = (canvas.width - width) / 2 + (canvas.width * photoX) / 100;
+		const y = (canvas.height - height) / 2 + (canvas.height * photoY) / 100;
+
+		context.drawImage(photo, x, y, width, height);
+
+		if (frameLoaded) {
+			// Este recurso es un logotipo horizontal temporal, no un marco.
+			// Limitamos su ancho y calculamos el alto para no deformarlo.
+			const logoWidth = canvas.width * 0.58;
+			const logoScale = logoWidth / frame.naturalWidth;
+			const logoHeight = frame.naturalHeight * logoScale;
+			const logoX = (canvas.width - logoWidth) / 2;
+			const logoY = canvas.height * 0.05;
+			const platePadding = canvas.width * 0.025;
+
+			context.save();
+			context.fillStyle = "rgba(255, 255, 255, 0.9)";
+			context.beginPath();
+			context.roundRect(
+				logoX - platePadding,
+				logoY - platePadding,
+				logoWidth + platePadding * 2,
+				logoHeight + platePadding * 2,
+				canvas.width * 0.018,
+			);
+			context.fill();
+			context.drawImage(frame, logoX, logoY, logoWidth, logoHeight);
+			context.restore();
+		}
+	}
+
+	frame.addEventListener("load", () => {
+		frameLoaded = true;
+
+		if (photo) {
+			renderPhoto();
+		}
+	});
+
+	frame.addEventListener("error", () => {
+		console.warn(
+			"No se pudo cargar /public/imagenes/Chalco-TESCHA.webp.",
+		);
+	});
+
+	frame.src = "/imagenes/Chalco-TESCHA.webp";
+
+	document.addEventListener("photo:adjust", (event) => {
+		const adjustments = (
+			event as CustomEvent<{ scale: number; x: number; y: number }>
+		).detail;
+
+		photoScale = adjustments.scale;
+		photoX = adjustments.x;
+		photoY = adjustments.y;
+
+		if (photo) {
+			renderPhoto();
+		}
+	});
+
+	document.addEventListener("photo:selected", (event) => {
+		const selectedFile = (event as CustomEvent<File>).detail;
+
+		if (photoUrl) {
+			URL.revokeObjectURL(photoUrl);
+		}
+
+		photoUrl = URL.createObjectURL(selectedFile);
+		const nextPhoto = new Image();
+
+		nextPhoto.addEventListener("load", () => {
+			photo = nextPhoto;
+			renderPhoto();
+
+			if (placeholder) {
+				placeholder.textContent = "Fotografía cargada correctamente.";
+			}
+		});
+
+		nextPhoto.addEventListener("error", () => {
+			if (placeholder) {
+				placeholder.textContent = "No fue posible mostrar la fotografía.";
+			}
+		});
+
+		nextPhoto.src = photoUrl;
+	});
+
+	paintEmptyCanvas();
+</script>

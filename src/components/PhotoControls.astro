@@ -1,0 +1,116 @@
+<section
+	aria-labelledby="photo-controls-title"
+	class="mt-6 rounded-xl border border-slate-200 p-5"
+>
+	<div class="flex items-center justify-between gap-4">
+		<h2
+			id="photo-controls-title"
+			class="text-xl font-semibold text-tescha-blue"
+		>
+			Ajustes de fotografía
+		</h2>
+
+		<button
+			id="reset-photo"
+			type="button"
+			class="cursor-pointer text-sm font-medium text-tescha-green underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tescha-green"
+		>
+			Restablecer
+		</button>
+	</div>
+
+	<div class="mt-5 space-y-5">
+		<label class="block" for="photo-scale">
+			<span class="flex items-center justify-between text-sm text-slate-600">
+				<span>Escala (zoom)</span>
+				<output id="photo-scale-value" for="photo-scale">1.00×</output>
+			</span>
+			<input
+				id="photo-scale"
+				type="range"
+				min="1"
+				max="3"
+				step="0.01"
+				value="1"
+				class="mt-2 w-full accent-tescha-blue"
+			/>
+		</label>
+
+		<div class="grid gap-5 sm:grid-cols-2">
+			<label class="block" for="photo-x">
+				<span class="flex items-center justify-between text-sm text-slate-600">
+					<span>Posición X</span>
+					<output id="photo-x-value" for="photo-x">0%</output>
+				</span>
+				<input
+					id="photo-x"
+					type="range"
+					min="-50"
+					max="50"
+					step="1"
+					value="0"
+					class="mt-2 w-full accent-tescha-blue"
+				/>
+			</label>
+
+			<label class="block" for="photo-y">
+				<span class="flex items-center justify-between text-sm text-slate-600">
+					<span>Posición Y</span>
+					<output id="photo-y-value" for="photo-y">0%</output>
+				</span>
+				<input
+					id="photo-y"
+					type="range"
+					min="-50"
+					max="50"
+					step="1"
+					value="0"
+					class="mt-2 w-full accent-tescha-blue"
+				/>
+			</label>
+		</div>
+	</div>
+</section>
+
+<script>
+	const scaleInput = document.querySelector<HTMLInputElement>("#photo-scale");
+	const xInput = document.querySelector<HTMLInputElement>("#photo-x");
+	const yInput = document.querySelector<HTMLInputElement>("#photo-y");
+	const scaleValue =
+		document.querySelector<HTMLOutputElement>("#photo-scale-value");
+	const xValue = document.querySelector<HTMLOutputElement>("#photo-x-value");
+	const yValue = document.querySelector<HTMLOutputElement>("#photo-y-value");
+	const resetButton =
+		document.querySelector<HTMLButtonElement>("#reset-photo");
+
+	function publishPhotoAdjustments() {
+		if (!scaleInput || !xInput || !yInput) return;
+
+		const scale = Number(scaleInput.value);
+		const x = Number(xInput.value);
+		const y = Number(yInput.value);
+
+		if (scaleValue) scaleValue.value = `${scale.toFixed(2)}×`;
+		if (xValue) xValue.value = `${x}%`;
+		if (yValue) yValue.value = `${y}%`;
+
+		document.dispatchEvent(
+			new CustomEvent("photo:adjust", {
+				detail: { scale, x, y },
+			}),
+		);
+	}
+
+	[scaleInput, xInput, yInput].forEach((input) => {
+		input?.addEventListener("input", publishPhotoAdjustments);
+	});
+
+	resetButton?.addEventListener("click", () => {
+		if (!scaleInput || !xInput || !yInput) return;
+
+		scaleInput.value = "1";
+		xInput.value = "0";
+		yInput.value = "0";
+		publishPhotoAdjustments();
+	});
+</script>

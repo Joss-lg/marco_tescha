@@ -1,0 +1,60 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ImageUploader from "../components/ImageUploader.astro";
+import CanvasEditor from "../components/CanvasEditor.astro";
+import PhotoControls from "../components/PhotoControls.astro";
+---
+
+<Layout>
+	<header class="bg-tescha-blue shadow-md">
+		<div
+			class="mx-auto flex min-h-28 max-w-7xl items-center justify-between px-4 sm:px-6"
+		>
+			<!-- Espacio para mantener centrado el logotipo -->
+			<div class="size-10" aria-hidden="true"></div>
+
+			<a href="/" aria-label="Ir a la página principal">
+				<img
+					src="/imagenes/logotescha.webp"
+					alt="Tecnológico de Estudios Superiores de Chalco"
+					class="h-auto w-52 rounded-md bg-white px-3 py-2 sm:w-64"
+				/>
+			</a>
+
+			<button
+				type="button"
+				aria-label="Mostrar información de la aplicación"
+				class="flex size-10 cursor-pointer items-center justify-center rounded-full text-xl font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+			>
+				<span aria-hidden="true">ⓘ</span>
+			</button>
+		</div>
+	</header>
+
+	<main class="min-h-[calc(100vh-7rem)] px-4 py-8 sm:px-6 lg:px-8">
+		<section
+			class="mx-auto max-w-6xl bg-white px-5 py-10 shadow-xl sm:px-10 lg:px-14"
+		>
+			<header class="mb-10 text-center">
+				<h1
+					class="text-3xl font-bold tracking-tight text-tescha-blue sm:text-4xl"
+				>
+					Generador de Marco Fotográfico
+				</h1>
+
+				<p class="mt-3 text-base text-slate-500 sm:text-lg">
+					Sube tu fotografía y aplica el diseño oficial del TESCHA.
+				</p>
+			</header>
+
+			<div class="grid items-start gap-8 lg:grid-cols-2">
+				<section aria-label="Controles de edición">
+					<ImageUploader />
+					<PhotoControls />
+				</section>
+
+				<CanvasEditor />
+			</div>
+		</section>
+	</main>
+</Layout>
