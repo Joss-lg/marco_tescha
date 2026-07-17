@@ -1,160 +1,277 @@
+---
+// src/components/CanvasEditor.astro
+---
+
 <section
-	id="canvas-editor"
-	aria-labelledby="preview-title"
-	class="rounded-xl border border-slate-200 bg-slate-50 p-5"
+    id="canvas-editor"
+    aria-labelledby="preview-title"
+    class="rounded-xl border border-slate-200 bg-slate-50 p-5"
 >
-	<h2
-		id="preview-title"
-		class="text-center text-xl font-semibold text-tescha-blue"
-	>
-		Vista previa
-	</h2>
+    <!-- Título de la sección actualizado al color guinda institucional -->
+    <h2
+        id="preview-title"
+        class="text-center text-xl font-semibold text-tescha-wine"
+    >
+        Vista previa
+    </h2>
 
-	<p class="mt-1 text-center text-sm text-slate-500">
-		La fotografía se ajustará automáticamente al lienzo.
-	</p>
+    <!-- Selector de Interacción (Fotografía / Marco) -->
+    <div class="mt-4 flex items-center justify-center gap-3 bg-white p-2 rounded-xl border border-slate-200 max-w-xs mx-auto">
+        <span class="text-sm font-medium text-slate-700">Interacción:</span>
+        <div class="flex bg-slate-100 p-1 rounded-lg gap-1 w-full">
+            <button
+                id="target-photo-btn"
+                type="button"
+                class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-md transition-all bg-white text-slate-800 shadow-sm"
+            >
+                Fotografía
+            </button>
+            <button
+                id="target-frame-btn"
+                type="button"
+                class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-md transition-all text-slate-500 hover:text-slate-800"
+            >
+                Marco
+            </button>
+        </div>
+    </div>
 
-	<div
-		class="mt-5 aspect-square overflow-hidden rounded-lg bg-slate-200 shadow-inner"
-	>
-		<canvas
-			id="photo-canvas"
-			width="1080"
-			height="1080"
-			class="block size-full"
-			aria-label="Vista previa de la fotografía"
-		></canvas>
+    <!-- Contenedor del Canvas (Lienzo rectangular vertical Oficio) -->
+    <div
+        class="mt-5 overflow-hidden rounded-lg bg-slate-200 shadow-inner flex items-center justify-center relative select-none p-2"
+    >
+        <canvas
+            id="photo-canvas"
+            width="2550"
+            height="4000"
+            class="w-full h-auto max-h-[70vh] object-contain border border-slate-300 rounded-lg shadow-inner bg-slate-50 cursor-grab active:cursor-grabbing"
+            aria-label="Vista previa de la fotografía con el marco del TESCHA"
+        ></canvas>
+    </div>
+
+    <p
+        id="canvas-placeholder"
+        class="mt-4 text-center text-sm text-slate-500"
+    >
+        Selecciona una fotografía para comenzar. Puedes arrastrar el elemento seleccionado dentro del lienzo.
+    </p>
+
+    <!-- Botón de descarga integrado -->
+<!-- Botón de descarga integrado con el color guinda institucional -->
+	<div class="mt-5">
+		<button
+			id="download-btn"
+			type="button"
+			class="w-full bg-tescha-wine hover:bg-[#611626] text-white font-semibold py-3 px-6 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
+		>
+			<svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+			</svg>
+			Descargar Imagen Final
+		</button>
 	</div>
-
-	<p
-		id="canvas-placeholder"
-		class="mt-4 text-center text-sm text-slate-500"
-	>
-		Selecciona una fotografía para comenzar.
-	</p>
 </section>
 
 <script>
-	const canvas = document.querySelector<HTMLCanvasElement>("#photo-canvas");
-	const placeholder =
-		document.querySelector<HTMLElement>("#canvas-placeholder");
-	const context = canvas?.getContext("2d");
+    const canvas = document.querySelector<HTMLCanvasElement>("#photo-canvas");
+    const placeholder = document.querySelector<HTMLElement>("#canvas-placeholder");
+    const downloadBtn = document.querySelector<HTMLButtonElement>("#download-btn");
+    
+    // Botones del selector táctil/interacción
+    const targetPhotoBtn = document.querySelector<HTMLButtonElement>("#target-photo-btn");
+    const targetFrameBtn = document.querySelector<HTMLButtonElement>("#target-frame-btn");
+    
+    const context = canvas?.getContext("2d");
 
-	let photo: HTMLImageElement | null = null;
-	let photoUrl: string | null = null;
-	let photoScale = 1;
-	let photoX = 0;
-	let photoY = 0;
-	const frame = new Image();
-	let frameLoaded = false;
+    let photo: HTMLImageElement | null = null;
+    let photoUrl: string | null = null;
+    
+    // Estado de la fotografía del usuario (Capa de fondo)
+    let photoScale = 1;
+    let photoX = 0;
+    let photoY = 0;
 
-	function paintEmptyCanvas() {
-		if (!canvas || !context) return;
+    // Estado del Marco Institucional (Capa del frente)
+    let frameScale = 1;
+    let frameX = 0;
+    let frameY = 0;
 
-		context.fillStyle = "#e2e8f0";
-		context.fillRect(0, 0, canvas.width, canvas.height);
-	}
+    // Inicializar objeto de imagen para el Marco Oficial
+    const frame = new Image();
+    let frameLoaded = false;
 
-	function renderPhoto() {
-		if (!canvas || !context || !photo) return;
+    // Control de interacción ("photo" o "frame")
+    let currentTarget: "photo" | "frame" = "photo";
 
-		context.clearRect(0, 0, canvas.width, canvas.height);
+    // Variables para el arrastre con el mouse
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
 
-		// Equivale a object-fit: cover, sin deformar la fotografía.
-		const scale = Math.max(
-			canvas.width / photo.naturalWidth,
-			canvas.height / photo.naturalHeight,
-		);
-		const width = photo.naturalWidth * scale * photoScale;
-		const height = photo.naturalHeight * scale * photoScale;
-		const x = (canvas.width - width) / 2 + (canvas.width * photoX) / 100;
-		const y = (canvas.height - height) / 2 + (canvas.height * photoY) / 100;
+    function paintEmptyCanvas() {
+        if (!canvas || !context) return;
+        context.fillStyle = "#ffffff"; 
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        
+        if (frameLoaded) {
+            context.drawImage(frame, 0, 0, canvas.width, canvas.height);
+        }
+    }
 
-		context.drawImage(photo, x, y, width, height);
+    function renderPhoto() {
+        if (!canvas || !context) return;
 
-		if (frameLoaded) {
-			// Este recurso es un logotipo horizontal temporal, no un marco.
-			// Limitamos su ancho y calculamos el alto para no deformarlo.
-			const logoWidth = canvas.width * 0.58;
-			const logoScale = logoWidth / frame.naturalWidth;
-			const logoHeight = frame.naturalHeight * logoScale;
-			const logoX = (canvas.width - logoWidth) / 2;
-			const logoY = canvas.height * 0.05;
-			const platePadding = canvas.width * 0.025;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
 
-			context.save();
-			context.fillStyle = "rgba(255, 255, 255, 0.9)";
-			context.beginPath();
-			context.roundRect(
-				logoX - platePadding,
-				logoY - platePadding,
-				logoWidth + platePadding * 2,
-				logoHeight + platePadding * 2,
-				canvas.width * 0.018,
-			);
-			context.fill();
-			context.drawImage(frame, logoX, logoY, logoWidth, logoHeight);
-			context.restore();
-		}
-	}
+        // CAPA INFERIOR: Fotografía del usuario
+        if (photo) {
+            const baseScale = Math.max(
+                canvas.width / photo.naturalWidth,
+                canvas.height / photo.naturalHeight,
+            );
+            
+            const width = photo.naturalWidth * baseScale * photoScale;
+            const height = photo.naturalHeight * baseScale * photoScale;
+            
+            const x = (canvas.width - width) / 2 + (canvas.width * photoX) / 100;
+            const y = (canvas.height - height) / 2 + (canvas.height * photoY) / 100;
 
-	frame.addEventListener("load", () => {
-		frameLoaded = true;
+            context.drawImage(photo, x, y, width, height);
+        }
 
-		if (photo) {
-			renderPhoto();
-		}
-	});
+        // CAPA SUPERIOR: Marco Institucional
+        if (frameLoaded) {
+            const frameWidth = canvas.width * frameScale;
+            const frameHeight = canvas.height * frameScale;
+            
+            const frameXPos = ((canvas.width - frameWidth) / 2) + (canvas.width * frameX) / 100;
+            const frameYPos = ((canvas.height - frameHeight) / 2) + (canvas.height * frameY) / 100;
 
-	frame.addEventListener("error", () => {
-		console.warn(
-			"No se pudo cargar /public/imagenes/Chalco-TESCHA.webp.",
-		);
-	});
+            context.save();
+            context.drawImage(frame, frameXPos, frameYPos, frameWidth, frameHeight);
+            context.restore();
+        }
+    }
 
-	frame.src = "/imagenes/Chalco-TESCHA.webp";
+    frame.addEventListener("load", () => {
+        frameLoaded = true;
+        renderPhoto();
+    });
 
-	document.addEventListener("photo:adjust", (event) => {
-		const adjustments = (
-			event as CustomEvent<{ scale: number; x: number; y: number }>
-		).detail;
+    // ¡CORREGIDO! Nombre de archivo institucional exacto: MarcoTESCHA.png
+    frame.src = "/imagenes/Marco TESCHA.png"; 
 
-		photoScale = adjustments.scale;
-		photoX = adjustments.x;
-		photoY = adjustments.y;
+    // --- INTERRUPTOR DE INTERACCIÓN (MANEJO DE UI DE BOTONES) ---
+    function updateToggleUI() {
+        if (currentTarget === "photo") {
+            targetPhotoBtn?.classList.add("bg-white", "text-slate-800", "shadow-sm");
+            targetPhotoBtn?.classList.remove("text-slate-500");
+            targetFrameBtn?.classList.remove("bg-white", "text-slate-800", "shadow-sm");
+            targetFrameBtn?.classList.add("text-slate-500");
+        } else {
+            targetFrameBtn?.classList.add("bg-white", "text-slate-800", "shadow-sm");
+            targetFrameBtn?.classList.remove("text-slate-500");
+            targetPhotoBtn?.classList.remove("bg-white", "text-slate-800", "shadow-sm");
+            targetPhotoBtn?.classList.add("text-slate-500");
+        }
+    }
 
-		if (photo) {
-			renderPhoto();
-		}
-	});
+    targetPhotoBtn?.addEventListener("click", () => { currentTarget = "photo"; updateToggleUI(); });
+    targetFrameBtn?.addEventListener("click", () => { currentTarget = "frame"; updateToggleUI(); });
 
-	document.addEventListener("photo:selected", (event) => {
-		const selectedFile = (event as CustomEvent<File>).detail;
+    // --- MANEJO DE ARRASTRE DIRECTO EN CANVAS ---
+    canvas?.addEventListener("mousedown", (e) => {
+        if (currentTarget === "photo" && !photo) return; 
 
-		if (photoUrl) {
-			URL.revokeObjectURL(photoUrl);
-		}
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+    });
 
-		photoUrl = URL.createObjectURL(selectedFile);
-		const nextPhoto = new Image();
+    window.addEventListener("mousemove", (e) => {
+        if (!isDragging || !canvas) return;
 
-		nextPhoto.addEventListener("load", () => {
-			photo = nextPhoto;
-			renderPhoto();
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
 
-			if (placeholder) {
-				placeholder.textContent = "Fotografía cargada correctamente.";
-			}
-		});
+        startX = e.clientX;
+        startY = e.clientY;
 
-		nextPhoto.addEventListener("error", () => {
-			if (placeholder) {
-				placeholder.textContent = "No fue posible mostrar la fotografía.";
-			}
-		});
+        const rect = canvas.getBoundingClientRect();
+        const percentX = (deltaX / rect.width) * 100;
+        const percentY = (deltaY / rect.height) * 100;
 
-		nextPhoto.src = photoUrl;
-	});
+        if (currentTarget === "photo") {
+            photoX += percentX;
+            photoY += percentY;
+        } else {
+            frameX += percentX;
+            frameY += percentY;
+        }
 
-	paintEmptyCanvas();
+        renderPhoto();
+
+        // Sincronizar el estado con los controles deslizantes
+        const updateEvent = new CustomEvent("canvas:sync", {
+            detail: { photoX, photoY, frameX, frameY }
+        });
+        document.dispatchEvent(updateEvent);
+    });
+
+    window.addEventListener("mouseup", () => {
+        isDragging = false;
+    });
+
+    // --- ESCUCHADORES DE EVENTOS GLOBALES ---
+    document.addEventListener("photo:adjust", (event) => {
+        const adjustments = (event as CustomEvent<{ scale: number; x: number; y: number }>).detail;
+        photoScale = adjustments.scale;
+        photoX = adjustments.x;
+        photoY = adjustments.y;
+        renderPhoto();
+    });
+
+    document.addEventListener("frame:adjust", (event) => {
+        const adjustments = (event as CustomEvent<{ scale: number; x: number; y: number }>).detail;
+        frameScale = adjustments.scale;
+        frameX = adjustments.x;
+        frameY = adjustments.y;
+        renderPhoto();
+    });
+
+    document.addEventListener("photo:selected", (event) => {
+        const selectedFile = (event as CustomEvent<File>).detail;
+        if (photoUrl) {
+            URL.revokeObjectURL(photoUrl);
+        }
+
+        photoUrl = URL.createObjectURL(selectedFile);
+        const nextPhoto = new Image();
+
+        nextPhoto.addEventListener("load", () => {
+            photo = nextPhoto;
+            renderPhoto();
+            if (placeholder) {
+                placeholder.textContent = "Fotografía cargada correctamente.";
+            }
+        });
+
+        nextPhoto.src = photoUrl;
+    });
+
+    downloadBtn?.addEventListener("click", () => {
+        if (!canvas || !photo) {
+            alert("Por favor, selecciona e introduce una fotografía antes de descargar.");
+            return;
+        }
+        const dataUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = "fotografia_institucional_tescha.png";
+        link.href = dataUrl;
+        link.click();
+    });
+
+    paintEmptyCanvas();
 </script>

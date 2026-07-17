@@ -1,116 +1,158 @@
-<section
-	aria-labelledby="photo-controls-title"
-	class="mt-6 rounded-xl border border-slate-200 p-5"
->
-	<div class="flex items-center justify-between gap-4">
-		<h2
-			id="photo-controls-title"
-			class="text-xl font-semibold text-tescha-blue"
-		>
-			Ajustes de fotografía
-		</h2>
+---
+// src/components/PhotoControls.astro
+---
 
-		<button
-			id="reset-photo"
-			type="button"
-			class="cursor-pointer text-sm font-medium text-tescha-green underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tescha-green"
-		>
-			Restablecer
-		</button>
-	</div>
+<div class="space-y-6">
+    <!-- GRUPO 1: CONTROLES DE LA FOTO -->
+    <div class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-tescha-wine">
+                Ajustes de fotografía
+            </h2>
+            <button id="reset-photo" type="button" class="text-xs font-semibold text-tescha-green hover:text-[#00662f] transition-colors cursor-pointer">
+                Restablecer
+            </button>
+        </div>
 
-	<div class="mt-5 space-y-5">
-		<label class="block" for="photo-scale">
-			<span class="flex items-center justify-between text-sm text-slate-600">
-				<span>Escala (zoom)</span>
-				<output id="photo-scale-value" for="photo-scale">1.00×</output>
-			</span>
-			<input
-				id="photo-scale"
-				type="range"
-				min="1"
-				max="3"
-				step="0.01"
-				value="1"
-				class="mt-2 w-full accent-tescha-blue"
-			/>
-		</label>
+        <div class="space-y-4">
+            <div>
+                <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                    <span>Escala (zoom)</span>
+                    <span id="photo-scale-val">1.00×</span>
+                </div>
+                <input id="photo-scale" type="range" min="0.1" max="3" step="0.05" value="1" class="w-full accent-tescha-wine" />
+            </div>
 
-		<div class="grid gap-5 sm:grid-cols-2">
-			<label class="block" for="photo-x">
-				<span class="flex items-center justify-between text-sm text-slate-600">
-					<span>Posición X</span>
-					<output id="photo-x-value" for="photo-x">0%</output>
-				</span>
-				<input
-					id="photo-x"
-					type="range"
-					min="-50"
-					max="50"
-					step="1"
-					value="0"
-					class="mt-2 w-full accent-tescha-blue"
-				/>
-			</label>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <span>Posición X</span>
+                        <span id="photo-x-val">0%</span>
+                    </div>
+                    <input id="photo-x" type="range" min="-100" max="100" value="0" class="w-full accent-tescha-wine" />
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <span>Posición Y</span>
+                        <span id="photo-y-val">0%</span>
+                    </div>
+                    <input id="photo-y" type="range" min="-100" max="100" value="0" class="w-full accent-tescha-wine" />
+                </div>
+            </div>
+        </div>
+    </div>
 
-			<label class="block" for="photo-y">
-				<span class="flex items-center justify-between text-sm text-slate-600">
-					<span>Posición Y</span>
-					<output id="photo-y-value" for="photo-y">0%</output>
-				</span>
-				<input
-					id="photo-y"
-					type="range"
-					min="-50"
-					max="50"
-					step="1"
-					value="0"
-					class="mt-2 w-full accent-tescha-blue"
-				/>
-			</label>
-		</div>
-	</div>
-</section>
+    <!-- GRUPO 2: CONTROLES DEL MARCO -->
+    <div class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-tescha-wine">
+                Ajustes del marco / logotipo
+            </h2>
+                <button id="reset-frame" type="button" class="text-xs font-semibold text-tescha-green hover:text-[#00662f] transition-colors cursor-pointer">
+                    Restablecer
+                </button>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                    <span>Tamaño del logo</span>
+                    <span id="frame-scale-val">1.00×</span>
+                </div>
+                <input id="frame-scale" type="range" min="0.5" max="2" step="0.05" value="1" class="w-full accent-tescha-wine" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <span>Mover Horizontal (X)</span>
+                        <span id="frame-x-val">0%</span>
+                    </div>
+                    <input id="frame-x" type="range" min="-100" max="100" value="0" class="w-full accent-tescha-wine" />
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <span>Mover Vertical (Y)</span>
+                        <span id="frame-y-val">0%</span>
+                    </div>
+                    <input id="frame-y" type="range" min="-100" max="100" value="0" class="w-full accent-tescha-wine" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-	const scaleInput = document.querySelector<HTMLInputElement>("#photo-scale");
-	const xInput = document.querySelector<HTMLInputElement>("#photo-x");
-	const yInput = document.querySelector<HTMLInputElement>("#photo-y");
-	const scaleValue =
-		document.querySelector<HTMLOutputElement>("#photo-scale-value");
-	const xValue = document.querySelector<HTMLOutputElement>("#photo-x-value");
-	const yValue = document.querySelector<HTMLOutputElement>("#photo-y-value");
-	const resetButton =
-		document.querySelector<HTMLButtonElement>("#reset-photo");
+    // Referencias de elementos de la Fotografía
+    const pScale = document.querySelector<HTMLInputElement>("#photo-scale");
+    const pX = document.querySelector<HTMLInputElement>("#photo-x");
+    const pY = document.querySelector<HTMLInputElement>("#photo-y");
+    const pScaleVal = document.querySelector("#photo-scale-val");
+    const pXVal = document.querySelector("#photo-x-val");
+    const pYVal = document.querySelector("#photo-y-val");
+    const btnResetPhoto = document.querySelector("#reset-photo");
 
-	function publishPhotoAdjustments() {
-		if (!scaleInput || !xInput || !yInput) return;
+    // Referencias de elementos del Marco
+    const fScale = document.querySelector<HTMLInputElement>("#frame-scale");
+    const fX = document.querySelector<HTMLInputElement>("#frame-x");
+    const fY = document.querySelector<HTMLInputElement>("#frame-y");
+    const fScaleVal = document.querySelector("#frame-scale-val");
+    const fXVal = document.querySelector("#frame-x-val");
+    const fYVal = document.querySelector("#frame-y-val");
+    const btnResetFrame = document.querySelector("#reset-frame");
 
-		const scale = Number(scaleInput.value);
-		const x = Number(xInput.value);
-		const y = Number(yInput.value);
+    function dispatchPhoto() {
+        if (!pScale || !pX || !pY) return;
+        if (pScaleVal) pScaleVal.textContent = `${parseFloat(pScale.value).toFixed(2)}×`;
+        if (pXVal) pXVal.textContent = `${pX.value}%`;
+        if (pYVal) pYVal.textContent = `${pY.value}%`;
 
-		if (scaleValue) scaleValue.value = `${scale.toFixed(2)}×`;
-		if (xValue) xValue.value = `${x}%`;
-		if (yValue) yValue.value = `${y}%`;
+        document.dispatchEvent(new CustomEvent("photo:adjust", {
+            detail: { scale: parseFloat(pScale.value), x: parseInt(pX.value), y: parseInt(pY.value) }
+        }));
+    }
 
-		document.dispatchEvent(
-			new CustomEvent("photo:adjust", {
-				detail: { scale, x, y },
-			}),
-		);
-	}
+    function dispatchFrame() {
+        if (!fScale || !fX || !fY) return;
+        if (fScaleVal) fScaleVal.textContent = `${parseFloat(fScale.value).toFixed(2)}×`;
+        if (fXVal) fXVal.textContent = `${fX.value}%`;
+        if (fYVal) fYVal.textContent = `${fY.value}%`;
 
-	[scaleInput, xInput, yInput].forEach((input) => {
-		input?.addEventListener("input", publishPhotoAdjustments);
-	});
+        document.dispatchEvent(new CustomEvent("frame:adjust", {
+            detail: { scale: parseFloat(fScale.value), x: parseInt(fX.value), y: parseInt(fY.value) }
+        }));
+    }
 
-	resetButton?.addEventListener("click", () => {
-		if (!scaleInput || !xInput || !yInput) return;
+    // Escuchadores de eventos para sliders
+    [pScale, pX, pY].forEach(el => el?.addEventListener("input", dispatchPhoto));
+    [fScale, fX, fY].forEach(el => el?.addEventListener("input", dispatchFrame));
 
-		scaleInput.value = "1";
-		xInput.value = "0";
-		yInput.value = "0";
-		publishPhotoAdjustments();
-	});
+    // Botones de restablecer valores
+    btnResetPhoto?.addEventListener("click", () => {
+        if (pScale) pScale.value = "1";
+        if (pX) pX.value = "0";
+        if (pY) pY.value = "0";
+        dispatchPhoto();
+    });
+
+    btnResetFrame?.addEventListener("click", () => {
+        if (fScale) fScale.value = "1";
+        if (fX) fX.value = "0";
+        if (fY) fY.value = "0";
+        dispatchFrame();
+    });
+
+    // Sincronizar sliders si el usuario arrastra la imagen directamente en el lienzo (canvas)
+    document.addEventListener("canvas:sync", (e) => {
+        const data = (e as CustomEvent<{ photoX: number; photoY: number; frameX: number; frameY: number }>).detail;
+        if (pX) pX.value = Math.round(data.photoX).toString();
+        if (pY) pY.value = Math.round(data.photoY).toString();
+        if (fX) fX.value = Math.round(data.frameX).toString();
+        if (fY) fY.value = Math.round(data.frameY).toString();
+        
+        if (pXVal) pXVal.textContent = `${pX?.value}%`;
+        if (pYVal) pYVal.textContent = `${pY?.value}%`;
+        if (fXVal) fXVal.textContent = `${fX?.value}%`;
+        if (fYVal) fYVal.textContent = `${fY?.value}%`;
+    });
 </script>

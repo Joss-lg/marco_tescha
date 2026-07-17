@@ -6,55 +6,64 @@ import PhotoControls from "../components/PhotoControls.astro";
 ---
 
 <Layout>
-	<header class="bg-tescha-blue shadow-md">
-		<div
-			class="mx-auto flex min-h-28 max-w-7xl items-center justify-between px-4 sm:px-6"
-		>
-			<!-- Espacio para mantener centrado el logotipo -->
-			<div class="size-10" aria-hidden="true"></div>
+    <!-- Header Institucional con Título Centrado -->
+    <header class="bg-[#f4f4f4] border-b border-slate-200 shadow-sm">
+        <div
+            class="mx-auto grid grid-cols-3 min-h-24 max-w-7xl items-center px-4 sm:px-6 py-2"
+        >
+            <!-- Columna 1: Logos de Gobierno (Alineados a la izquierda) -->
+            <div class="flex items-center justify-start">
+                <img
+                    src="/imagenes/logo.svg"
+                    alt="Gobierno del Estado de México"
+                    class="h-12 sm:h-16 w-auto object-contain"
+                />
+            </div>
 
-			<a href="/" aria-label="Ir a la página principal">
-				<img
-					src="/imagenes/logotescha.webp"
-					alt="Tecnológico de Estudios Superiores de Chalco"
-					class="h-auto w-52 rounded-md bg-white px-3 py-2 sm:w-64"
-				/>
-			</a>
+            <!-- Columna 2: Nombre del Tecnológico (Matemáticamente Centrado) -->
+            <a href="/" aria-label="Ir a la página principal" class="hidden md:flex justify-center text-center">
+                <h2 class="text-xl lg:text-2xl font-bold text-tescha-wine font-sans tracking-wide">
+                    Tecnológico de Estudios Superiores de Chalco
+                </h2>
+            </a>
 
-			<button
-				type="button"
-				aria-label="Mostrar información de la aplicación"
-				class="flex size-10 cursor-pointer items-center justify-center rounded-full text-xl font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-			>
-				<span aria-hidden="true">ⓘ</span>
-			</button>
-		</div>
-	</header>
+            <!-- Columna 3: Botón de Información (Alineado a la derecha) -->
+            <div class="flex items-center justify-end">
+                <button
+                    type="button"
+                    aria-label="Mostrar información de la aplicación"
+                    class="flex size-10 cursor-pointer items-center justify-center rounded-full text-xl font-bold text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500"
+                >
+                    <span aria-hidden="true">ⓘ</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
-	<main class="min-h-[calc(100vh-7rem)] px-4 py-8 sm:px-6 lg:px-8">
-		<section
-			class="mx-auto max-w-6xl bg-white px-5 py-10 shadow-xl sm:px-10 lg:px-14"
-		>
-			<header class="mb-10 text-center">
-				<h1
-					class="text-3xl font-bold tracking-tight text-tescha-blue sm:text-4xl"
-				>
-					Generador de Marco Fotográfico
-				</h1>
+    <main class="min-h-[calc(100vh-7rem)] px-4 py-8 sm:px-6 lg:px-8">
+        <section
+            class="mx-auto max-w-6xl bg-white px-5 py-10 shadow-xl sm:px-10 lg:px-14"
+        >
+            <header class="mb-10 text-center">
+                <h1
+                    class="text-3xl font-bold tracking-tight text-tescha-wine sm:text-4xl"
+                >
+                    Generador de Marco Fotográfico
+                </h1>
 
-				<p class="mt-3 text-base text-slate-500 sm:text-lg">
-					Sube tu fotografía y aplica el diseño oficial del TESCHA.
-				</p>
-			</header>
+                <p class="mt-3 text-base text-slate-500 sm:text-lg">
+                    Sube tu fotografía y aplica el diseño oficial del TESCHA.
+                </p>
+            </header>
 
-			<div class="grid items-start gap-8 lg:grid-cols-2">
-				<section aria-label="Controles de edición">
-					<ImageUploader />
-					<PhotoControls />
-				</section>
+            <div class="grid items-start gap-8 lg:grid-cols-2">
+                <section aria-label="Controles de edición">
+                    <ImageUploader />
+                    <PhotoControls />
+                </section>
 
-				<CanvasEditor />
-			</div>
-		</section>
-	</main>
+                <CanvasEditor />
+            </div>
+        </section>
+    </main>
 </Layout>
