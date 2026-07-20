@@ -160,8 +160,8 @@
         renderPhoto();
     });
 
-    // ¡CORREGIDO! Nombre de archivo institucional exacto: MarcoTESCHA.png
-    frame.src = "/imagenes/Marco TESCHA.png"; 
+    // Marco institucional en formato WebP.
+    frame.src = "/imagenes/Marco TESCHA.webp";
 
     // --- INTERRUPTOR DE INTERACCIÓN (MANEJO DE UI DE BOTONES) ---
     function updateToggleUI() {
@@ -266,9 +266,9 @@
             alert("Por favor, selecciona e introduce una fotografía antes de descargar.");
             return;
         }
-        const dataUrl = canvas.toDataURL("image/png");
+        const dataUrl = canvas.toDataURL("image/webp", 0.92);
         const link = document.createElement("a");
-        link.download = "fotografia_institucional_tescha.png";
+        link.download = "fotografia_institucional_tescha.webp";
         link.href = dataUrl;
         link.click();
     });

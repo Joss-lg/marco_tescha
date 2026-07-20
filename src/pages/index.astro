@@ -11,27 +11,28 @@ import PhotoControls from "../components/PhotoControls.astro";
         <div
             class="mx-auto grid grid-cols-3 min-h-24 max-w-7xl items-center px-4 sm:px-6 py-2"
         >
-            <!-- Columna 1: Logos de Gobierno (Alineados a la izquierda) -->
+            <!-- Columna 1: Logos de Gobierno -->
             <div class="flex items-center justify-start">
                 <img
-                    src="/imagenes/logo.svg"
+                    src="/imagenes/logo.webp"
                     alt="Gobierno del Estado de México"
                     class="h-12 sm:h-16 w-auto object-contain"
                 />
             </div>
 
-            <!-- Columna 2: Nombre del Tecnológico (Matemáticamente Centrado) -->
+            <!-- Columna 2: Nombre del Tecnológico -->
             <a href="/" aria-label="Ir a la página principal" class="hidden md:flex justify-center text-center">
                 <h2 class="text-xl lg:text-2xl font-bold text-tescha-wine font-sans tracking-wide">
                     Tecnológico de Estudios Superiores de Chalco
                 </h2>
             </a>
 
-            <!-- Columna 3: Botón de Información (Alineado a la derecha) -->
+            <!-- Columna 3: Botón de Información (Abre el Modal) -->
             <div class="flex items-center justify-end">
                 <button
+                    id="info-btn"
                     type="button"
-                    aria-label="Mostrar información de la aplicación"
+                    aria-label="Mostrar créditos de la aplicación"
                     class="flex size-10 cursor-pointer items-center justify-center rounded-full text-xl font-bold text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500"
                 >
                     <span aria-hidden="true">ⓘ</span>
@@ -66,4 +67,107 @@ import PhotoControls from "../components/PhotoControls.astro";
             </div>
         </section>
     </main>
+
+    <!-- Ventana Emergente (Modal) de Créditos -->
+    <div 
+        id="credits-modal" 
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs transition-opacity p-4 animate-fade-in"
+    >
+        <!-- Forzado a color guinda directo con hexadecimal compatible con Tailwind v4 -->
+        <div class="relative w-full max-w-2xl rounded-2xl bg-[#7a1c31] text-white p-6 shadow-2xl border border-white/10">
+            <!-- Botón de Cerrar (Flecha/Atrás) -->
+            <button 
+                id="close-modal-btn" 
+                type="button" 
+                class="absolute top-5 left-5 text-white hover:text-slate-300 transition-colors cursor-pointer flex items-center justify-center gap-1 text-sm font-medium"
+                aria-label="Cerrar ventana de créditos"
+            >
+                <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </button>
+
+            <!-- Título Principal del Modal -->
+            <h3 class="text-center text-xl font-bold tracking-wide border-b border-white/20 pb-3 mt-2">
+                Créditos
+            </h3>
+
+            <!-- Tarjeta Blanca Central para Logotipos -->
+            <div class="mt-6 bg-white rounded-xl p-6 flex items-center justify-center gap-8 md:gap-12 min-h-28 shadow-inner">
+                <!-- Logotipo del TESCHA -->
+                <img 
+                    src="/imagenes/logotescha.webp" 
+                    alt="Logo TESCHA" 
+                    class="h-14 md:h-20 w-auto object-contain filter drop-shadow-xs" 
+                />
+                
+                <!-- Línea Divisoria Vertical -->
+                <div class="h-16 w-px bg-slate-300 self-center"></div>
+                
+                <!-- Logotipo de Ollintem -->
+                <img 
+                    src="/imagenes/2.webp" 
+                    alt="Logo Ollintem" 
+                    class="h-20 md:h-28 w-auto object-contain filter drop-shadow-xs" 
+                />
+            </div>
+
+            <!-- Información Inferior de Desarrollo -->
+            <div class="mt-8 text-center space-y-4">
+                <span class="text-xs uppercase tracking-widest text-white/70 font-bold block">
+                    Desarrollado por
+                </span>
+                
+                <h4 class="text-xl font-extrabold text-white tracking-wide leading-tight">
+                    OLLINTEM
+                </h4>
+
+                <div class="h-px w-16 bg-white/30 mx-auto my-3"></div>
+
+                <span class="text-xs uppercase tracking-widest text-white/70 font-bold block pt-1">
+                    Para el  
+                </span>
+
+                <!-- Lista de Integrantes del Equipo -->
+                <ul class="text-sm text-white font-medium space-y-1 pb-4">
+                    <li>Tecnologico de Estudios Superiores de Chalco</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </Layout>
+
+<script>
+    // Referencias de elementos de la UI
+    const infoBtn = document.querySelector<HTMLButtonElement>("#info-btn");
+    const creditsModal = document.querySelector<HTMLDivElement>("#credits-modal");
+    const closeModalBtn = document.querySelector<HTMLButtonElement>("#close-modal-btn");
+
+    // Función para abrir el modal de créditos
+    infoBtn?.addEventListener("click", () => {
+        creditsModal?.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden"); // Evita el scroll trasero
+    });
+
+    // Función para cerrar el modal de créditos
+    function closeModal() {
+        creditsModal?.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    closeModalBtn?.addEventListener("click", closeModal);
+
+    // Cerrar también si se da clic fuera de la tarjeta interna del modal
+    creditsModal?.addEventListener("click", (e) => {
+        if (e.target === creditsModal) {
+            closeModal();
+        }
+    });
+
+    // Cerrar con la tecla Escape
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !creditsModal?.classList.contains("hidden")) {
+            closeModal();
+        }
+    });
+</script>
